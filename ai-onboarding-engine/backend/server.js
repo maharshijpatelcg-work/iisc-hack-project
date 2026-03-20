@@ -6,9 +6,49 @@ const fs = require('fs');
 const zlib = require('zlib');
 const pdf = require('pdf-parse');
 const mammoth = require('mammoth');
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/aionboarding', {
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
+}).then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
+// User Schema
+const userSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    fullName: { type: String },
+    phone: { type: String },
+    linkedIn: { type: String },
+    analyses: [{ type: Object }] // Store previous analyses
+}, { timestamps: true });
+
+const User = mongoose.model('User', userSchema);
+
+const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_hackathon_key';
+
+// Auth Middleware
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (token == null) return res.sendStatus(401);
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
 
 app.use(cors());
 app.use(express.json());
@@ -885,10 +925,13 @@ async function extractTextFromFile(file) {
                 const data = await pdf(dataBuffer);
                 return data.text;
             } catch (err) {
-                if (err.message && err.message.includes("bad XRef entry")) {
-                    return extractTextFromPdfFallback(file.path);
+                console.warn(`Standard pdf-parse failed: ${err.message}. Attempting fallback parser...`);
+                try {
+                    const fallbackText = extractTextFromPdfFallback(file.path);
+                    return fallbackText;
+                } catch (fallbackErr) {
+                    throw err; // If fallback fails too, throw original error
                 }
-                throw err;
             }
         } else if (ext === '.docx' || ext === '.doc') {
             const result = await mammoth.extractRawText({ path: file.path });
@@ -904,6 +947,56 @@ async function extractTextFromFile(file) {
 app.get('/', (req, res) => {
   res.send('AI Adaptive Onboarding Engine API is running');
 });
+
+// --- AUTH ROUTES ---
+app.post('/api/auth/register', async (req, res) => {
+    try {
+        const { email, password, fullName, phone, linkedIn } = req.body;
+        if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+
+        const existingUser = await User.findOne({ email });
+        if (existingUser) return res.status(400).json({ error: 'Email already in use' });
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const newUser = new User({ email, password: hashedPassword, fullName, phone, linkedIn });
+        await newUser.save();
+
+        const token = jwt.sign({ userId: newUser._id, email: newUser.email }, JWT_SECRET, { expiresIn: '7d' });
+        res.status(201).json({ token, user: { id: newUser._id, email: newUser.email, fullName: newUser.fullName, analyses: newUser.analyses } });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
+
+        const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
+        res.json({ token, user: { id: user._id, email: user.email, analyses: user.analyses } });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId).select('-password');
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+// -------------------
 
 const cpUpload = upload.fields([{ name: 'resume', maxCount: 1 }, { name: 'jobDescription', maxCount: 1 }]);
 
@@ -953,6 +1046,29 @@ app.post('/upload', (req, res) => {
             goalCompany,
             goalSkills,
         });
+
+        // Optional: Save to Database if user is logged in
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, JWT_SECRET);
+                const user = await User.findById(decoded.userId);
+                if (user) {
+                    user.analyses.push({
+                        date: new Date(),
+                        goalRole,
+                        goalCompany,
+                        score: analysis.scorecard.total,
+                        summary: analysis.summary,
+                        analysisPayload: analysis 
+                    });
+                    await user.save();
+                }
+            } catch (jwtErr) {
+                console.log("JWT decode skipped or failed:", jwtErr.message);
+            }
+        }
 
         res.json({
             message: "Files processed successfully",
