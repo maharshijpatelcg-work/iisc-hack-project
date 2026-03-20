@@ -403,6 +403,64 @@ function buildProjectRecommendations({ goalRole, goalCompany, matchedSkills, gap
     }));
 }
 
+function buildAtsFeedback({ resumeText, jobDescriptionText, targetSkills, matchedSkills, gapSkills }) {
+    const sections = extractSections(resumeText);
+    const lines = resumeText.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    const bulletLikeLines = lines.filter((line) => /^[-*•]/.test(line));
+    const strongVerbLines = lines.filter((line) => /\b(built|developed|designed|implemented|created|optimized|led|improved|deployed|engineered)\b/i.test(line));
+    const quantifiedLines = lines.filter((line) => /\b\d+[%+x]?\b/.test(line));
+    const missingKeywords = gapSkills.slice(0, 6);
+    const missingCoreSections = [
+        !sections.summary ? 'Add a short professional summary aligned to the target role.' : null,
+        !sections.skills && !sections['technical skills'] ? 'Add a dedicated Skills or Technical Skills section for ATS parsing.' : null,
+        !sections.projects && !sections.experience && !sections['work experience'] ? 'Add Projects or Experience content with concrete technical evidence.' : null,
+    ].filter(Boolean);
+
+    const keywordCoverage = targetSkills.length > 0
+        ? (matchedSkills.length / targetSkills.length) * 100
+        : Math.min(100, strongVerbLines.length * 15);
+    const structureScore = clampScore(100 - (missingCoreSections.length * 22) + Math.min(bulletLikeLines.length * 4, 20));
+    const impactScore = clampScore(Math.min(strongVerbLines.length * 14, 55) + Math.min(quantifiedLines.length * 15, 45));
+    const readabilityScore = clampScore(lines.length >= 8 ? 80 + Math.min(lines.length, 20) : 45 + (lines.length * 3));
+    const overallScore = clampScore((keywordCoverage * 0.4) + (structureScore * 0.2) + (impactScore * 0.25) + (readabilityScore * 0.15));
+
+    const strengths = [
+        matchedSkills.length > 0 ? `The resume already includes ${matchedSkills.length} target-aligned keywords.` : null,
+        strongVerbLines.length > 0 ? `${strongVerbLines.length} lines use action-oriented language.` : null,
+        quantifiedLines.length > 0 ? `${quantifiedLines.length} lines include measurable evidence.` : null,
+    ].filter(Boolean);
+
+    const warnings = [
+        ...missingCoreSections,
+        missingKeywords.length > 0 ? `Important ATS keywords are still missing: ${missingKeywords.join(', ')}.` : null,
+        quantifiedLines.length === 0 ? 'Very few quantified outcomes were detected. Add numbers, percentages, or scale where possible.' : null,
+        bulletLikeLines.length === 0 ? 'Bullet-oriented achievement statements are limited or missing.' : null,
+    ].filter(Boolean);
+
+    const improvements = [
+        missingKeywords.length > 0 ? `Mirror job-description language for these skills where genuinely applicable: ${missingKeywords.slice(0, 4).join(', ')}.` : 'Keep the top target keywords consistent across summary, skills, and project bullets.',
+        'Rewrite project and experience lines to start with an action verb and end with an outcome.',
+        quantifiedLines.length === 0 ? 'Add measurable impact such as user count, latency improvement, accuracy, or delivery time.' : 'Preserve quantified bullets and add one more impact metric to the strongest project.',
+    ];
+
+    if (strengths.length === 0) {
+        strengths.push('The resume has enough raw content to improve with keyword and formatting changes.');
+    }
+
+    if (warnings.length === 0) {
+        warnings.push('No major ATS blockers were detected. Focus on tailoring wording to each job description.');
+    }
+
+    return {
+        score: overallScore,
+        band: overallScore >= 80 ? 'ATS Ready' : overallScore >= 60 ? 'Needs Tuning' : 'Needs Rewrite',
+        missingKeywords,
+        strengths,
+        warnings,
+        improvements,
+    };
+}
+
 function buildRoadmap(gapSkills, resumeSkills, goalRole, goalCompany) {
     if (gapSkills.length === 0) {
         return [
@@ -461,6 +519,13 @@ function analyzeProfile({ resumeText, jobDescriptionText, goalRole, goalCompany,
             matchedSkills,
             gapSkills,
             targetSkills,
+        }),
+        atsFeedback: buildAtsFeedback({
+            resumeText,
+            jobDescriptionText,
+            targetSkills,
+            matchedSkills,
+            gapSkills,
         }),
         roadmap: buildRoadmap(gapSkills, resumeSkills, goalRole, goalCompany),
     };

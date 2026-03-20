@@ -334,6 +334,62 @@ function App() {
                 </div>
               </div>
 
+              <div className="ats-panel">
+                <div className="ats-header">
+                  <div>
+                    <div className="summary-title">
+                      <AlertCircle size={18} />
+                      ATS Resume Feedback
+                    </div>
+                    <p className="ats-copy">Checks keyword coverage, structure, and bullet quality against the target role and job description.</p>
+                  </div>
+                  <div className="ats-badge">
+                    <strong>{analysis.atsFeedback.score}/100</strong>
+                    <span>{analysis.atsFeedback.band}</span>
+                  </div>
+                </div>
+
+                <div className="ats-grid">
+                  <div className="ats-column">
+                    <h3>Missing Keywords</h3>
+                    <div className="tag-list">
+                      {analysis.atsFeedback.missingKeywords.length > 0 ? (
+                        analysis.atsFeedback.missingKeywords.map((skill) => <span className="tag tag-gap" key={skill}>{skill}</span>)
+                      ) : (
+                        <span className="muted-copy">No major ATS keyword gaps detected.</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="ats-column">
+                    <h3>Strengths</h3>
+                    <div className="ats-list">
+                      {analysis.atsFeedback.strengths.map((item) => (
+                        <div className="ats-item ats-item-good" key={item}>{item}</div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="ats-column">
+                    <h3>Warnings</h3>
+                    <div className="ats-list">
+                      {analysis.atsFeedback.warnings.map((item) => (
+                        <div className="ats-item ats-item-warn" key={item}>{item}</div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="ats-column">
+                    <h3>Recommended Fixes</h3>
+                    <div className="ats-list">
+                      {analysis.atsFeedback.improvements.map((item) => (
+                        <div className="ats-item" key={item}>{item}</div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="insight-grid">
                 <div className="insight-card">
                   <h3><Target size={18} /> Extracted Skills From Resume</h3>
