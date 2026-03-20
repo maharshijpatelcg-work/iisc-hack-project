@@ -407,21 +407,18 @@ function App() {
               </div>
 
               <div className="resources-panel">
-                <div className="summary-title">
-                  <BookOpen size={18} />
-                  Courses And Certifications
-                </div>
-                <div className="resources-grid">
-                  {analysis.learningResources.map((resource) => (
-                    <div className="resource-card" key={resource.skill}>
-                      <div className="resource-skill">{resource.skill}</div>
-                      <h3>{resource.course}</h3>
-                      <div className="resource-cert">
-                        <strong>Certification:</strong> {resource.certification}
-                      </div>
-                      <p>{resource.why}</p>
+                <div className="quiz-compact">
+                  <div>
+                    <div className="summary-title">
+                      <BookOpen size={18} />
+                      Premium Learning Paths
                     </div>
-                  ))}
+                    <p className="quiz-copy">Role-specific courses and certification suggestions are available only in the premium version.</p>
+                  </div>
+                  <div className="premium-badge">Premium</div>
+                </div>
+                <div className="premium-note">
+                  Unlock curated courses, certifications, and skill-wise learning paths for your target role.
                 </div>
               </div>
 
