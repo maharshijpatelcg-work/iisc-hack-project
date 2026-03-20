@@ -569,6 +569,48 @@ h1 {
   background: #fef2f2;
 }
 
+.quiz-panel {
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  background: linear-gradient(180deg, #faf5ff 0%, #ffffff 100%);
+  border: 1px solid #d8b4fe;
+}
+
+.quiz-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.quiz-copy {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+.premium-badge {
+  min-width: 88px;
+  padding: 0.55rem 0.85rem;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #d8b4fe;
+  color: #7e22ce;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.premium-note {
+  margin-top: 0.85rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
 .insight-grid {
   display: grid;
   grid-template-columns: 1fr;

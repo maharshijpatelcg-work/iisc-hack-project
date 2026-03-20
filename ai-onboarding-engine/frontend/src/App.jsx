@@ -390,6 +390,22 @@ function App() {
                 </div>
               </div>
 
+              <div className="quiz-panel">
+                <div className="quiz-compact">
+                  <div>
+                    <div className="summary-title">
+                      <Sparkles size={18} />
+                      Premium Quiz Mode
+                    </div>
+                    <p className="quiz-copy">Practice quizzes for skill gaps are available only in the premium version.</p>
+                  </div>
+                  <div className="premium-badge">Premium</div>
+                </div>
+                <div className="premium-note">
+                  Unlock adaptive quizzes, instant scoring, and explanation-based practice for your weakest skills.
+                </div>
+              </div>
+
               <div className="insight-grid">
                 <div className="insight-card">
                   <h3><Target size={18} /> Extracted Skills From Resume</h3>

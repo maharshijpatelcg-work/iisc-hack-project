@@ -406,7 +406,7 @@ function buildProjectRecommendations({ goalRole, goalCompany, matchedSkills, gap
 function buildAtsFeedback({ resumeText, jobDescriptionText, targetSkills, matchedSkills, gapSkills }) {
     const sections = extractSections(resumeText);
     const lines = resumeText.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-    const bulletLikeLines = lines.filter((line) => /^[-*•]/.test(line));
+    const bulletLikeLines = lines.filter((line) => /^[-*]/.test(line));
     const strongVerbLines = lines.filter((line) => /\b(built|developed|designed|implemented|created|optimized|led|improved|deployed|engineered)\b/i.test(line));
     const quantifiedLines = lines.filter((line) => /\b\d+[%+x]?\b/.test(line));
     const missingKeywords = gapSkills.slice(0, 6);
@@ -459,6 +459,105 @@ function buildAtsFeedback({ resumeText, jobDescriptionText, targetSkills, matche
         warnings,
         improvements,
     };
+}
+
+function buildQuizQuestions({ gapSkills, matchedSkills, targetSkills, goalRole }) {
+    const quizBank = {
+        React: {
+            question: 'Which React hook is used to manage local component state?',
+            options: ['useMemo', 'useState', 'useEffect', 'useContext'],
+            answer: 'useState',
+            explanation: 'useState is the standard hook for local state in function components.',
+        },
+        'Node.js': {
+            question: 'What is the main role of Express middleware in a Node.js API?',
+            options: ['Compile JavaScript', 'Intercept and process requests or responses', 'Store data permanently', 'Render CSS'],
+            answer: 'Intercept and process requests or responses',
+            explanation: 'Middleware sits in the request-response cycle and can validate, transform, or route traffic.',
+        },
+        SQL: {
+            question: 'Which SQL clause is used to filter rows before aggregation?',
+            options: ['ORDER BY', 'HAVING', 'WHERE', 'GROUP BY'],
+            answer: 'WHERE',
+            explanation: 'WHERE filters rows before grouping and aggregation occur.',
+        },
+        AWS: {
+            question: 'Which AWS service is commonly used for object storage?',
+            options: ['EC2', 'S3', 'Lambda', 'CloudWatch'],
+            answer: 'S3',
+            explanation: 'Amazon S3 is the standard object storage service.',
+        },
+        Docker: {
+            question: 'What is the main purpose of Docker in application development?',
+            options: ['Write frontend code', 'Containerize applications for consistent environments', 'Replace databases', 'Serve DNS records'],
+            answer: 'Containerize applications for consistent environments',
+            explanation: 'Docker packages apps and dependencies into consistent runtime containers.',
+        },
+        'Data Structures': {
+            question: 'Which data structure follows Last-In-First-Out order?',
+            options: ['Queue', 'Stack', 'Heap', 'Graph'],
+            answer: 'Stack',
+            explanation: 'A stack removes the most recently added item first.',
+        },
+        'REST APIs': {
+            question: 'Which HTTP method is most commonly used to create a new resource?',
+            options: ['GET', 'PUT', 'POST', 'DELETE'],
+            answer: 'POST',
+            explanation: 'POST is typically used to create resources on the server.',
+        },
+        Testing: {
+            question: 'What is the main purpose of a unit test?',
+            options: ['Test the entire production environment', 'Verify one small unit of behavior in isolation', 'Replace manual QA permanently', 'Deploy the application'],
+            answer: 'Verify one small unit of behavior in isolation',
+            explanation: 'Unit tests validate specific logic in isolation from the rest of the system.',
+        },
+        JavaScript: {
+            question: 'Which keyword declares a block-scoped variable in JavaScript?',
+            options: ['var', 'let', 'function', 'constantly'],
+            answer: 'let',
+            explanation: 'let is block scoped and intended for variables that may change.',
+        },
+        TypeScript: {
+            question: 'What does TypeScript add on top of JavaScript?',
+            options: ['Database queries', 'Static typing', 'Automatic deployment', 'Browser rendering'],
+            answer: 'Static typing',
+            explanation: 'TypeScript primarily adds static types and tooling on top of JavaScript.',
+        },
+    };
+
+    const focusSkills = unique([...gapSkills, ...targetSkills, ...matchedSkills]).slice(0, 4);
+    const generated = focusSkills.map((skill) => {
+        const base = quizBank[skill];
+        if (base) {
+            return { skill, ...base };
+        }
+
+        return {
+            skill,
+            question: `Why is ${skill} important for ${goalRole || 'the target role'}?`,
+            options: [
+                'It is unrelated to delivery',
+                'It only matters for design tools',
+                'It contributes directly to role-specific execution and project quality',
+                'It replaces communication skills',
+            ],
+            answer: 'It contributes directly to role-specific execution and project quality',
+            explanation: `${skill} is relevant because it supports the practical expectations of ${goalRole || 'the target role'}.`,
+        };
+    });
+
+    return generated.length > 0 ? generated : [{
+        skill: 'General Preparation',
+        question: `What is the best use of a practice quiz for ${goalRole || 'your target role'}?`,
+        options: [
+            'Memorize random facts without context',
+            'Identify weak areas and reinforce fundamentals',
+            'Replace all projects and interviews',
+            'Avoid reading the job description',
+        ],
+        answer: 'Identify weak areas and reinforce fundamentals',
+        explanation: 'A targeted quiz is useful when it exposes weak areas that you then fix through practice.',
+    }];
 }
 
 function buildRoadmap(gapSkills, resumeSkills, goalRole, goalCompany) {
@@ -526,6 +625,12 @@ function analyzeProfile({ resumeText, jobDescriptionText, goalRole, goalCompany,
             targetSkills,
             matchedSkills,
             gapSkills,
+        }),
+        quiz: buildQuizQuestions({
+            gapSkills,
+            matchedSkills,
+            targetSkills,
+            goalRole,
         }),
         roadmap: buildRoadmap(gapSkills, resumeSkills, goalRole, goalCompany),
     };
@@ -774,3 +879,5 @@ app.post('/upload', (req, res) => {
 app.listen(port, () => {
   console.log(`Backend server listening at http://localhost:${port}`);
 });
+
+
