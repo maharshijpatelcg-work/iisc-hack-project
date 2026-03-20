@@ -560,6 +560,93 @@ function buildQuizQuestions({ gapSkills, matchedSkills, targetSkills, goalRole }
     }];
 }
 
+function buildLearningResources({ gapSkills, targetSkills, goalRole }) {
+    const resourceCatalog = {
+        React: {
+            course: 'React - The Complete Guide',
+            certification: 'Meta Front-End Developer Certificate',
+            why: 'Improves component architecture, hooks, and production-ready frontend patterns.',
+        },
+        'Node.js': {
+            course: 'Node.js, Express, MongoDB Bootcamp',
+            certification: 'OpenJS Node.js Application Developer',
+            why: 'Strengthens backend APIs, middleware design, and practical server-side delivery.',
+        },
+        SQL: {
+            course: 'SQL for Data Analysis',
+            certification: 'Oracle Database SQL Certified Associate',
+            why: 'Builds query fluency, joins, aggregation, and schema reasoning.',
+        },
+        AWS: {
+            course: 'AWS Cloud Practitioner Essentials',
+            certification: 'AWS Certified Cloud Practitioner',
+            why: 'Adds cloud fundamentals, storage, compute, and deployment confidence.',
+        },
+        Docker: {
+            course: 'Docker and Kubernetes: The Complete Guide',
+            certification: 'Docker Certified Associate',
+            why: 'Helps with containerization, deployment consistency, and local-to-cloud workflows.',
+        },
+        'Data Structures': {
+            course: 'Data Structures and Algorithms Specialization',
+            certification: 'NPTEL Problem Solving Through Programming',
+            why: 'Improves coding round performance and algorithmic reasoning.',
+        },
+        'REST APIs': {
+            course: 'REST API Design, Development and Management',
+            certification: 'Postman API Fundamentals Student Expert',
+            why: 'Reinforces API design, validation, and request lifecycle thinking.',
+        },
+        Testing: {
+            course: 'Testing JavaScript',
+            certification: 'ISTQB Foundation Level',
+            why: 'Improves code confidence through unit testing and quality discipline.',
+        },
+        JavaScript: {
+            course: 'JavaScript: Understanding the Weird Parts',
+            certification: 'Meta JavaScript Programming Certificate',
+            why: 'Deepens language fundamentals and debugging confidence.',
+        },
+        TypeScript: {
+            course: 'Understanding TypeScript',
+            certification: 'TypeScript Pro Workshops Certificate',
+            why: 'Improves type-safe application design and maintainability.',
+        },
+        'System Design': {
+            course: 'Grokking the System Design Interview',
+            certification: 'System Design Program Completion Certificate',
+            why: 'Builds architecture discussion skills for senior interview rounds.',
+        },
+        Python: {
+            course: 'Python for Everybody',
+            certification: 'PCAP Certified Associate in Python Programming',
+            why: 'Improves scripting, backend fundamentals, and automation capability.',
+        },
+    };
+
+    const focusSkills = unique([...gapSkills, ...targetSkills]).slice(0, 4);
+    const suggestions = focusSkills.map((skill) => {
+        const resource = resourceCatalog[skill];
+        if (resource) {
+            return { skill, ...resource };
+        }
+
+        return {
+            skill,
+            course: `${skill} Foundations Course`,
+            certification: `${skill} Practitioner Certificate`,
+            why: `Builds direct capability in ${skill} for ${goalRole || 'the target role'}.`,
+        };
+    });
+
+    return suggestions.length > 0 ? suggestions : [{
+        skill: 'General Career Growth',
+        course: 'Software Engineering Foundations',
+        certification: 'Industry Foundations Certificate',
+        why: `Provides structured guidance for ${goalRole || 'the target role'} when skill gaps are not yet clearly defined.`,
+    }];
+}
+
 function buildRoadmap(gapSkills, resumeSkills, goalRole, goalCompany) {
     if (gapSkills.length === 0) {
         return [
@@ -629,6 +716,11 @@ function analyzeProfile({ resumeText, jobDescriptionText, goalRole, goalCompany,
         quiz: buildQuizQuestions({
             gapSkills,
             matchedSkills,
+            targetSkills,
+            goalRole,
+        }),
+        learningResources: buildLearningResources({
+            gapSkills,
             targetSkills,
             goalRole,
         }),

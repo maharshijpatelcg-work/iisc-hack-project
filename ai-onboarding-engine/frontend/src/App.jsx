@@ -406,6 +406,25 @@ function App() {
                 </div>
               </div>
 
+              <div className="resources-panel">
+                <div className="summary-title">
+                  <BookOpen size={18} />
+                  Courses And Certifications
+                </div>
+                <div className="resources-grid">
+                  {analysis.learningResources.map((resource) => (
+                    <div className="resource-card" key={resource.skill}>
+                      <div className="resource-skill">{resource.skill}</div>
+                      <h3>{resource.course}</h3>
+                      <div className="resource-cert">
+                        <strong>Certification:</strong> {resource.certification}
+                      </div>
+                      <p>{resource.why}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="insight-grid">
                 <div className="insight-card">
                   <h3><Target size={18} /> Extracted Skills From Resume</h3>
