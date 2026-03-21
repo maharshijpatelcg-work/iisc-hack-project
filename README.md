@@ -26,14 +26,6 @@ This system automates and enhances the onboarding process by:
 
 ---
 
-## UI Preview
-
-<p align="center">
-  <img src="assets/ui-preview.png" width="900"/>
-</p>
-
----
-
 ## Problem Statement
 
 Traditional onboarding systems:
@@ -57,6 +49,14 @@ This project solves it with:
 - AI Processing Engine  
 - Personalized Learning Roadmap  
 - Career Goal Integration  
+
+---
+
+## UI Preview
+
+<p align="center">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWQ3dWZzZzRrZ2Z6dXJ1a2N5d2J4b2l1Y3ZlZzZ2Y2RkY2J3d2U0eiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/26tn33aiTi1jkl6H6/giphy.gif" width="700"/>
+</p>
 
 ---
 
