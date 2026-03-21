@@ -26,6 +26,14 @@ This system automates and enhances the onboarding process by:
 
 ---
 
+## UI Preview
+
+<p align="center">
+  <img src="assets/ui-preview.png" width="900"/>
+</p>
+
+---
+
 ## Problem Statement
 
 Traditional onboarding systems:
@@ -49,26 +57,6 @@ This project solves it with:
 - AI Processing Engine  
 - Personalized Learning Roadmap  
 - Career Goal Integration  
-
----
-
-## UI Preview
-
-### Landing Page
-
-<p align="center">
-  <img src="assets/landing.png" width="900"/>
-</p>
-
-### Dashboard / Analysis Page
-
-<p align="center">
-  <img src="assets/dashboard.png" width="900"/>
-</p>
-
-> Note: Place your screenshots inside an `assets/` folder in your repo and name them:
-> - `landing.png`
-> - `dashboard.png`
 
 ---
 
