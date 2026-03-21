@@ -1,5 +1,3 @@
-# iisc-hack-project
-
 # AI Adaptive Onboarding Engine
 
 <p align="center">
@@ -56,9 +54,21 @@ This project solves it with:
 
 ## UI Preview
 
+### Landing Page
+
 <p align="center">
-  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWQ3dWZzZzRrZ2Z6dXJ1a2N5d2J4b2l1Y3ZlZzZ2Y2RkY2J3d2U0eiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/26tn33aiTi1jkl6H6/giphy.gif" width="700"/>
+  <img src="assets/landing.png" width="900"/>
 </p>
+
+### Dashboard / Analysis Page
+
+<p align="center">
+  <img src="assets/dashboard.png" width="900"/>
+</p>
+
+> Note: Place your screenshots inside an `assets/` folder in your repo and name them:
+> - `landing.png`
+> - `dashboard.png`
 
 ---
 
