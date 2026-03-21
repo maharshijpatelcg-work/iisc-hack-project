@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import './App.css';
 import HeroSection from './HeroSection';
+import PremiumPage from './PremiumPage';
 
 function App() {
   const [resume, setResume] = useState(null);
@@ -27,6 +28,7 @@ function App() {
   const [error, setError] = useState(null);
   const [extractedData, setExtractedData] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' or 'premium'
 
   // Auth States
   const [token, setToken] = useState(localStorage.getItem('token') || null);
@@ -220,7 +222,7 @@ function App() {
         />
       )}
       
-      {(user || isDemoUnlocked) && (
+      {(user || isDemoUnlocked) && currentView === 'dashboard' && (
         <div className="app-container" id="demo-section" style={{ marginTop: '2rem' }}>
           <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
@@ -461,7 +463,7 @@ function App() {
                     </div>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                      <div className="quiz-panel" style={{ margin: 0 }}>
+                      <div className="quiz-panel" style={{ margin: 0, cursor: 'pointer' }} onClick={() => setCurrentView('premium-quizzes')}>
                         <div className="quiz-compact">
                           <div>
                             <div className="summary-title"><Sparkles size={18} /> Premium Quizzes</div>
@@ -469,7 +471,7 @@ function App() {
                           <div className="premium-badge">Premium</div>
                         </div>
                       </div>
-                      <div className="resources-panel" style={{ margin: 0 }}>
+                      <div className="resources-panel" style={{ margin: 0, cursor: 'pointer' }} onClick={() => setCurrentView('premium-paths')}>
                         <div className="quiz-compact">
                           <div>
                             <div className="summary-title"><BookOpen size={18} /> Learning Paths</div>
@@ -580,6 +582,10 @@ function App() {
         </div>
       </main>
     </div>
+    )}
+
+    {(user || isDemoUnlocked) && currentView.startsWith('premium-') && (
+      <PremiumPage type={currentView.split('premium-')[1]} onBack={() => setCurrentView('dashboard')} />
     )}
 
     {isAuthModalOpen && (
